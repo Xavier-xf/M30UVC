@@ -1,0 +1,2 @@
+Y:\develop\project\binocular_module\senseengine_lib_trunk\sample\windows\Sample_Uart\x64\Debug\Sample_C++.exe
+E:\senseengine_lib\sample\windows\Sample_Uart\x64\Debug\Sample_C++.exe

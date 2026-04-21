@@ -1,0 +1,14 @@
+prefix=./install/imx6ull/
+exec_prefix=${prefix}
+libdir=./install/imx6ull//lib
+includedir=./install/imx6ull//include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 7.40.101
+Requires: 
+Requires.private: libswscale >= 5.3.100, libavformat >= 58.20.100, libavcodec >= 58.35.100, libswresample >= 3.3.100, libavutil >= 56.22.100
+Conflicts:
+Libs: -L${libdir}  -lavfilter 
+Libs.private: -pthread -lm
+Cflags: -I${includedir}

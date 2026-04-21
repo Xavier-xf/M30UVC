@@ -1,0 +1,14 @@
+prefix=./install/imx6ull/
+exec_prefix=${prefix}
+libdir=./install/imx6ull//lib
+includedir=./install/imx6ull//include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 56.22.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm
+Cflags: -I${includedir}

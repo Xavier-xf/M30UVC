@@ -1,0 +1,18 @@
+After upgrade, call getframe function to get Angle data in verifyBuf
+
+example:
+{"face_info":{"rect":{"bottom":1089,"left":216,"right":670,"top":630},
+"headpose":{"yaw":2.8307955265045168,"pitch":-1.0101317167282105,"roll":-4.243658065795898},
+"track_id":3},
+"recognition_id":"STRANGER",
+"recognition_status":4,"timestamp":0,
+"safety_hat":0,"mask_sign":0,
+"attr_info":{"gender":-1,"age":-1,"skin":-1,"glass":-1,"mustache":-1,"expression":-1,"cap":-1}
+}
+
+New data fields:
+"headpose":{"yaw":2.8307955265045168,"pitch":-1.0101317167282105,"roll":-4.243658065795898}
+
+| pitch    | pitch Angle       |
+| roll     | roll  Angle       |
+| yaw      | yaw   Angle       |

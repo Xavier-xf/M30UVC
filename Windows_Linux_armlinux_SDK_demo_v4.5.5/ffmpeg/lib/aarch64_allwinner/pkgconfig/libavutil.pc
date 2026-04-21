@@ -1,0 +1,14 @@
+prefix=./install/allwinner_aarch64/
+exec_prefix=${prefix}
+libdir=./install/allwinner_aarch64//lib
+includedir=./install/allwinner_aarch64//include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 56.22.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm
+Cflags: -I${includedir}

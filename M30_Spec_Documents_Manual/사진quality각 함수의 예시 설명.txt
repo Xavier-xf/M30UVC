@@ -1,0 +1,117 @@
+struct PortraitFaceInfo
+
+{
+
+    std::string feature_id;
+
+    Roi roi;
+
+    float confidence;
+
+    float quality_summary;
+
+    float align_confidence;
+
+    float blur;
+
+    Headpose headpose;
+
+};
+
+ 
+
+struct Headpose
+
+{
+
+    float pitch;
+
+    float roll;
+
+    float yaw;
+
+};
+
+각 함수의 디폴트 threshold:
+
+Confidence -> 0.3
+
+quality_summary -> 0.3
+
+align_confidence -> 0.4
+
+blur -> 0.7
+
+headpose ->
+
+        "pitch_max": 30,
+
+        "pitch_min": -30,
+
+        "roll_max": 30,
+
+        "roll_min": -30,
+
+        "yaw_max": 30,
+
+        "yaw_min": -30
+
+ 
+
+예시:
+
+  "align_confidence": 0.9833984375,
+
+  "bbbox": [
+
+    650,
+
+    292,
+
+    825,
+
+    472
+
+  ],
+
+  "blur": 0.9990366697311401,
+
+  "detect_confidence": 0.8901941180229187,
+
+  "pitch": -29.781818389892578,
+
+  "roll": 13.344358444213867,
+
+  "sum_quality": 0.828750491142273,
+
+  "yaw": 6.602328300476074
+
+}
+
+설명:
+
+  "align_confidence": 0.9833984375,                       -> 표준 얼굴과 유사한 정도 (오관의 위치가 표준 얼굴과 가까이 되면 이 점수가 높고 영화의 외계인ET같은 얼굴이면 이 점수가 많이 떨어짐)
+
+  "bbbox": [                                                            -> 얼굴을 디텍 창의 4각의 좌표
+
+    650,
+
+    292,
+
+    825,
+
+    472
+
+  ],
+
+  "blur": 0.9990366697311401,                               -> 얼굴의 애매보한 정도 (값이 높을 수록 얼굴 잘 보이는 뜻)
+
+  "detect_confidence": 0.8901941180229187,         -> 얼굴을 디텍션된 confidence정도 (값이 높을 수록 사진에 얼굴이 존재한 가능성이 높음)
+
+  "pitch": -29.781818389892578,                            -> 얼굴의 pinch각도
+
+  "roll": 13.344358444213867,                                -> 얼굴의 roll각도
+
+  "sum_quality": 0.828750491142273,                     -> 얼굴의 종합적인 quality점수 (값이 높을 수록 quality가 더 좋은 뜻, 0.8이상이면 정면 얼굴에 아주 좋은 점수이며 디폴트 threshold=0.3의 뜻이 일반적인 surveillance로 찍은 얼굴라도 만족하려면 0.3을 사용함)
+
+"yaw": 6.602328300476074                                  -> 얼굴의 yaw각도

@@ -1,0 +1,14 @@
+prefix=./install/imx6ull/
+exec_prefix=${prefix}
+libdir=./install/imx6ull//lib
+includedir=./install/imx6ull//include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 58.35.100
+Requires: 
+Requires.private: libswresample >= 3.3.100, libavutil >= 56.22.100
+Conflicts:
+Libs: -L${libdir}  -lavcodec 
+Libs.private: -pthread -lm
+Cflags: -I${includedir}

@@ -1,0 +1,10 @@
+﻿  复制了 0 个文件
+  复制了 0 个文件
+  Sample.cpp
+  demo.cpp
+E:\senseengine_lib\sample\windows\Sample_Uart\demo.cpp(125,50): warning C4267: “参数”: 从“size_t”转换到“uint”，可能丢失数据
+E:\senseengine_lib\sample\windows\Sample_Uart\demo.cpp(396,23): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+E:\senseengine_lib\sample\windows\Sample_Uart\demo.cpp(404,32): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+E:\senseengine_lib\sample\windows\Sample_Uart\demo.cpp(468,5): warning C4267: “参数”: 从“size_t”转换到“uint”，可能丢失数据
+  正在生成代码...
+  Sample.vcxproj -> E:\senseengine_lib\sample\windows\Sample_Uart\x64\Debug\Sample_C++.exe

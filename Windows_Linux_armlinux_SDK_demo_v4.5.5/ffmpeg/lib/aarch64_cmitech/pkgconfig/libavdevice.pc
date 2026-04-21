@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 58.5.100
+Requires: 
+Requires.private: libavfilter >= 7.40.101, libswscale >= 5.3.100, libavformat >= 58.20.100, libavcodec >= 58.35.100, libswresample >= 3.3.100, libavutil >= 56.22.100
+Conflicts:
+Libs: -L${libdir}  -lavdevice 
+Libs.private: -lm -L/data/yuanfeng/jenkins/workspace/openwrt_aarch/staging_dir/target-aarch64_cortex-a53_glibc/usr/lib -lasound -L/data/yuanfeng/jenkins/workspace/openwrt_aarch/staging_dir/target-aarch64_cortex-a53_glibc/usr/lib -lv4l2
+Cflags: -I${includedir}

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(xargs -0 grep -l \"8080\\\\|packageBytes\\\\|package.*8\")",
+      "Bash(xargs grep *)",
+      "Bash(grep -oP \"[a-zA-Z_#]{4,}\")",
+      "Bash(cd \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib\" grep -ao \"GCC:.*\" imx6ull/libDebug/libAICameraModule.so.4.5.5)",
+      "Bash(readelf -h \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib/imx6ull/libDebug/libAICameraModule.so\")",
+      "Bash(readelf -d \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib/imx6ull/libDebug/libAICameraModule.so\")",
+      "Bash(nm -D \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib/imx6ull/libDebug/libAICameraModule.so\")",
+      "Bash(grep -oP '[/a-zA-Z0-9_.]{4,}')",
+      "Bash(grep -ao '[a-zA-Z0-9_/\\\\.\\\\-]\\\\{5,\\\\}' \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib/linux64_14/libDebug/libAICameraModule.so\")",
+      "Bash(grep -ao '[a-zA-Z0-9_/\\\\.\\\\-]\\\\{4,\\\\}' \"C:/Users/Administrator/Desktop/uvc/Windows_Linux_armlinux_SDK_demo_v4.5.5/lib/linux64_14/libDebug/libAICameraModule.so\")"
+    ]
+  }
+}
