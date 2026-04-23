@@ -95,17 +95,17 @@ static void stream_loop(m30_ctx_t *ctx)
     g_quit = 0;
 }
 
-/* -------------------- 纯视频播放(不保存) --------------------- */
+/* -------------------- 无显示拉流基准 (老化脚本用) --------------------- */
 
-static void video_play(m30_ctx_t *ctx)
+static void stream_bench(m30_ctx_t *ctx)
 {
-    printf("video playing, Ctrl+C to stop...\n\n");
+    printf("headless stream benchmark (no display, no save), Ctrl+C to stop...\n\n");
 
     g_stop = 0;
     m30_frame_t fr;
     int err;
     unsigned long frame_cnt = 0, total_frames = 0, err_cnt = 0;
-    double min_fps = 1e9, max_fps = 0;
+    double fps_min = 1e9, fps_max = 0.0;
     long long t_start = now_ms(), t_last = t_start;
 
     while (!g_stop) {
@@ -123,11 +123,11 @@ static void video_play(m30_ctx_t *ctx)
         long long elapsed = t_now - t_last;
         if (elapsed >= 1000) {
             double fps = frame_cnt * 1000.0 / elapsed;
+            if (fps < fps_min) fps_min = fps;
+            if (fps > fps_max) fps_max = fps;
             double avg = total_frames * 1000.0 / (t_now - t_start);
-            if (fps < min_fps) min_fps = fps;
-            if (fps > max_fps) max_fps = fps;
-            printf("\r  %dx%d | frames: %lu | %.1f fps | avg %.1f | min %.1f | max %.1f | err: %lu    ",
-                   fr.width, fr.height, total_frames, fps, avg, min_fps, max_fps, err_cnt);
+            printf("\r  frames: %lu | %.1f fps | avg %.1f fps | err: %lu    ",
+                   total_frames, fps, avg, err_cnt);
             fflush(stdout);
             frame_cnt = 0;
             t_last = t_now;
@@ -135,10 +135,65 @@ static void video_play(m30_ctx_t *ctx)
     }
 
     long long t_total = now_ms() - t_start;
-    printf("\n\nvideo done: %lu frames, %.1f sec, avg %.1f fps, min %.1f, max %.1f, err %lu\n",
+    double avg = t_total > 0 ? total_frames * 1000.0 / t_total : 0.0;
+    /* 未采样到窗口时把 min 归零，避免输出 1e9 */
+    if (fps_min > 1e8) fps_min = 0.0;
+    printf("\n\nbench done: %lu frames, %.1f sec, avg %.1f fps, min %.1f, max %.1f, err %lu\n",
+           total_frames, t_total / 1000.0, avg, fps_min, fps_max, err_cnt);
+
+    g_stop = 0;
+    g_quit = 0;
+}
+
+/* -------------------- 视频播放 (ffplay 窗口) --------------------- */
+
+static void video_play(m30_ctx_t *ctx)
+{
+    int w = 0, h = 0;
+    int err = m30_get_resolution(ctx, &w, &h);
+    if (err != M30_OK || w <= 0 || h <= 0) {
+        printf("get resolution failed: %s\n", m30_strerror(err));
+        return;
+    }
+
+    char cmd[256];
+    snprintf(cmd, sizeof(cmd),
+             "ffplay -f rawvideo -pixel_format bgra -video_size %dx%d "
+             "-framerate 25 -window_title \"M30 Live (%dx%d)\" -i pipe:0 "
+             "-loglevel quiet 2>/dev/null",
+             w, h, w, h);
+
+    FILE *fp = popen(cmd, "w");
+    if (!fp) {
+        printf("failed to start ffplay, make sure ffmpeg is installed\n");
+        return;
+    }
+
+    printf("video playing %dx%d, Ctrl+C to stop...\n", w, h);
+    g_stop = 0;
+
+    m30_frame_t fr;
+    unsigned long total_frames = 0, err_cnt = 0;
+    long long t_start = now_ms();
+
+    while (!g_stop) {
+        err = m30_get_frame(ctx, &fr);
+        if (err == M30_OK) {
+            if (fwrite(fr.data, fr.size, 1, fp) != 1) break;
+            total_frames++;
+        } else {
+            err_cnt++;
+            if (err_cnt <= 3)
+                printf("  get frame failed: %s\n", m30_strerror(err));
+        }
+    }
+
+    pclose(fp);
+
+    long long t_total = now_ms() - t_start;
+    printf("\nvideo done: %lu frames, %.1f sec, avg %.1f fps, err %lu\n",
            total_frames, t_total / 1000.0,
-           t_total > 0 ? total_frames * 1000.0 / t_total : 0.0,
-           min_fps < 1e9 ? min_fps : 0, max_fps, err_cnt);
+           t_total > 0 ? total_frames * 1000.0 / t_total : 0.0, err_cnt);
 
     g_stop = 0;
     g_quit = 0;
@@ -156,7 +211,8 @@ static void show_menu(void)
     puts("  2) Query resolution / framerate / light sensitivity");
     puts("  3) Save single frame BMP");
     puts("  4) Stream loop + save BMP (Ctrl+C to stop)");
-    puts("  15) Video play - fps only (Ctrl+C to stop)");
+    puts("  15) Video play - ffplay window (Ctrl+C to stop)");
+    puts("  16) Stream benchmark - headless, no display/save (for aging test)");
     puts("--- Camera Control ---");
     puts("  5) UVC output switch (1=on 0=off)");
     puts("  6) Camera stream on/off (RGB/IR)");
@@ -282,6 +338,10 @@ int main(void)
 
         case 15:
             video_play(g_ctx);
+            break;
+
+        case 16:
+            stream_bench(g_ctx);
             break;
 
         case 5:

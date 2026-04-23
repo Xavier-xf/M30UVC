@@ -251,7 +251,9 @@ run_cmd_test() {
     fi
 }
 
-# ---- 视频流测试 (使用菜单15纯播放模式) ------------------------------------
+# ---- 视频流测试 (使用菜单16无显示基准模式) --------------------------------
+# 注意：老化场景下不能用菜单 15 (video_play/ffplay)，ffplay 需要 X11 display，
+# headless/SSH 环境会直接失败。菜单 16 (stream_bench) 是纯拉帧统计，无显示、无写盘。
 run_stream_test() {
     local round_num=$1
     local duration=$2
@@ -260,28 +262,32 @@ run_stream_test() {
     local out_file
     out_file=$(mktemp /tmp/m30_stream_out_XXXXXX.txt)
 
-    # "15" 进入纯视频播放模式, timeout 后 SIGINT 触发退出
-    echo "15" | timeout --signal=SIGINT "$duration" "$BIN" > "$out_file" 2>&1 || true
+    # "16" 进入 headless 基准模式, timeout 后 SIGINT 触发退出
+    echo "16" | timeout --signal=SIGINT "$duration" "$BIN" > "$out_file" 2>&1 || true
 
-    # 解析帧数和 fps
-    # 输出格式: "video done: 1234 frames, 30.0 sec, avg 15.2 fps, min 10.0, max 25.0, err 0"
+    # 解析输出：bench done / stream done / video done 三种格式都支持
+    # 用 ${var:-0} 兜底，避免 "grep | tail || echo 0" 这种 pipeline 里 || 不触发导致的空串
     local frames avg_fps min_f max_f errs
-    frames=$(grep -oP 'video done:\s*\K\d+' "$out_file" 2>/dev/null || echo "0")
-    avg_fps=$(grep -oP 'avg\s+\K[0-9.]+(?=\s*fps)' "$out_file" 2>/dev/null || echo "0")
-    min_f=$(grep -oP 'min\s+\K[0-9.]+' "$out_file" 2>/dev/null || echo "0")
-    max_f=$(grep -oP 'max\s+\K[0-9.]+' "$out_file" 2>/dev/null || echo "0")
-    errs=$(grep -oP 'err\s+\K\d+' "$out_file" 2>/dev/null | tail -1 || echo "0")
+    frames=$(grep -oP '(?:bench|stream|video) done:\s*\K\d+' "$out_file" 2>/dev/null | tail -1)
+    avg_fps=$(grep -oP 'avg\s+\K[0-9.]+(?=\s*fps)' "$out_file" 2>/dev/null | tail -1)
+    min_f=$(grep -oP 'min\s+\K[0-9.]+' "$out_file" 2>/dev/null | tail -1)
+    max_f=$(grep -oP 'max\s+\K[0-9.]+' "$out_file" 2>/dev/null | tail -1)
+    errs=$(grep -oP 'err\s+\K\d+' "$out_file" 2>/dev/null | tail -1)
 
-    # 回退兼容：如果纯播放模式没匹配到，尝试旧格式
-    if [ "$frames" = "0" ]; then
-        frames=$(grep -oP 'stream done:\s*\K\d+' "$out_file" 2>/dev/null || echo "0")
-        avg_fps=$(grep -oP 'avg\s+\K[0-9.]+(?=\s*fps)' "$out_file" 2>/dev/null || echo "0")
+    # 回退：bench/stream/video done 都没打出来时，从实时刷新行里捞末次 frames/avg
+    if [ -z "$frames" ]; then
+        frames=$(grep -oP 'frames:\s*\K\d+' "$out_file" 2>/dev/null | tail -1)
+        if [ -z "$avg_fps" ]; then
+            avg_fps=$(grep -oP 'avg\s+\K[0-9.]+' "$out_file" 2>/dev/null | tail -1)
+        fi
     fi
-    # 再回退：从实时输出行提取
-    if [ "$frames" = "0" ]; then
-        frames=$(grep -oP 'frames:\s*\K\d+' "$out_file" 2>/dev/null | tail -1 || echo "0")
-        avg_fps=$(grep -oP 'avg\s+\K[0-9.]+' "$out_file" 2>/dev/null | tail -1 || echo "0")
-    fi
+
+    # 统一兜底为 0，保证后续算术比较不会炸
+    frames=${frames:-0}
+    avg_fps=${avg_fps:-0}
+    min_f=${min_f:-0}
+    max_f=${max_f:-0}
+    errs=${errs:-0}
 
     total_frames=$((total_frames + frames))
     total_errors=$((total_errors + errs))
